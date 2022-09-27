@@ -16,6 +16,7 @@ import java.util.List;
 import static nextstep.subway.acceptance.StationSteps.지하철역_목록_조회;
 import static nextstep.subway.acceptance.StationSteps.지하철역_생성;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("지하철역 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -53,15 +54,22 @@ public class StationAcceptanceTest {
      * When 지하철역 목록을 조회하면
      * Then 2개의 지하철역을 응답 받는다
      */
-    // TODO: 지하철역 목록 조회 인수 테스트 메서드 생성
     @DisplayName("지하철역을 조회힌다.")
     @Test
     void getStations() {
         // given
+        지하철역_생성(StationRequest.from("강남역"));
+        지하철역_생성(StationRequest.from("신논현역"));
 
         // when
+        ExtractableResponse<Response> response = 지하철역_목록_조회();
+        List<String> stationNames = response.jsonPath().getList("name", String.class);
 
         // then
+        assertAll(
+                () -> assertThat(stationNames).hasSize(2),
+                () -> assertThat(stationNames).containsAnyOf("강남역", "신논현역")
+        );
     }
 
     /**

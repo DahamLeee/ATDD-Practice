@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import nextstep.subway.applicaion.dto.StationRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 public class StationSteps {
@@ -14,6 +15,7 @@ public class StationSteps {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/stations")
                 .then().log().all()
+                .statusCode(HttpStatus.CREATED.value())
                 .extract();
     }
 
@@ -21,6 +23,7 @@ public class StationSteps {
         return RestAssured.given().log().all()
                 .when().get("/stations")
                 .then()
+                .statusCode(HttpStatus.OK.value())
                 .extract();
     }
 }
