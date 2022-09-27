@@ -26,4 +26,13 @@ public class StationSteps {
                 .statusCode(HttpStatus.OK.value())
                 .extract();
     }
+
+    public static ExtractableResponse<Response> 지하철역_삭제(Long id) {
+        return RestAssured.given().log().all()
+                .pathParam("id", id)
+                .when().delete("/stations/{id}")
+                .then().log().all()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .extract();
+    }
 }

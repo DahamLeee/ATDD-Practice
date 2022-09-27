@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 import static nextstep.subway.acceptance.StationSteps.지하철역_목록_조회;
+import static nextstep.subway.acceptance.StationSteps.지하철역_삭제;
 import static nextstep.subway.acceptance.StationSteps.지하철역_생성;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -82,9 +83,16 @@ public class StationAcceptanceTest {
     @Test
     void deleteStation() {
         // given
+        Long stationId = 지하철역_생성(StationRequest.from("강남역"))
+                .jsonPath().getLong("id");
 
         // when
+        지하철역_삭제(stationId);
 
         // then
+        ExtractableResponse<Response> response = 지하철역_목록_조회();
+        List<String> stationNames = response.jsonPath().getList("name", String.class);
+
+        assertThat(stationNames).isEmpty();
     }
 }
