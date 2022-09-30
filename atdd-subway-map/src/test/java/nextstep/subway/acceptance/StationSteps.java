@@ -22,7 +22,7 @@ public class StationSteps {
     public static ExtractableResponse<Response> 지하철역_목록_조회() {
         return RestAssured.given().log().all()
                 .when().get("/stations")
-                .then()
+                .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract();
     }

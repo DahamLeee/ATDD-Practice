@@ -2,6 +2,7 @@ package nextstep.subway.applicaion.dto;
 
 import nextstep.subway.domain.Line;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class LineResponse {
     private String name;
     private String color;
 
-    private List<StationResponse> stations;
+    private final List<StationResponse> stations = new ArrayList<>();
 
     private LineResponse() { }
 

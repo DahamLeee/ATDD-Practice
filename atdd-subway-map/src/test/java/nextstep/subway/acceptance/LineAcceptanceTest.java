@@ -1,7 +1,17 @@
 package nextstep.subway.acceptance;
 
+import nextstep.subway.applicaion.dto.LineRequest;
+import nextstep.subway.applicaion.dto.StationRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_목록_조회;
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_생성;
+import static nextstep.subway.acceptance.StationSteps.지하철역_생성;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("지하철 노선 관련 기능")
 public class LineAcceptanceTest extends AcceptanceTest {
@@ -14,7 +24,18 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void createLine() {
         // when
+        Long upStationId = 지하철역_생성(StationRequest.from("강남역")).jsonPath().getLong("id");
+        Long downStationId = 지하철역_생성(StationRequest.from("신논현역")).jsonPath().getLong("id");
+
+        지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", upStationId, downStationId, 10));
+
         // then
+        List<String> lineNames = 지하철_노선_목록_조회().jsonPath().getList("name", String.class);
+
+        assertAll(
+                () -> assertThat(lineNames).hasSize(1),
+                () -> assertThat(lineNames).containsAnyOf("신분당선")
+        );
     }
 
     /**
