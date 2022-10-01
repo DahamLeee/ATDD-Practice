@@ -1,7 +1,10 @@
 package nextstep.subway.acceptance;
 
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import nextstep.subway.applicaion.dto.LineRequest;
 import nextstep.subway.applicaion.dto.StationRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +19,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @DisplayName("지하철 노선 관련 기능")
 public class LineAcceptanceTest extends AcceptanceTest {
 
+    private Long 강남역;
+    private Long 신논현역;
+    private Long 정자역;
+
+    @BeforeEach
+    void initData() {
+        강남역 = 지하철역_생성(StationRequest.from("강남역")).jsonPath().getLong("id");
+        신논현역 = 지하철역_생성(StationRequest.from("신논현역")).jsonPath().getLong("id");
+        정자역 = 지하철역_생성(StationRequest.from("정자역")).jsonPath().getLong("id");
+    }
+
     /**
      * When 지하철 노선을 생성하면
      * Then 지하철 노선 목록 조회 시 노선을 찾을 수 있다.
@@ -24,10 +38,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void createLine() {
         // when
-        Long upStationId = 지하철역_생성(StationRequest.from("강남역")).jsonPath().getLong("id");
-        Long downStationId = 지하철역_생성(StationRequest.from("신논현역")).jsonPath().getLong("id");
-
-        지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", upStationId, downStationId, 10));
+        지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10));
 
         // then
         List<String> lineNames = 지하철_노선_목록_조회().jsonPath().getList("name", String.class);
@@ -47,8 +58,19 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void getLines() {
         // given
+        지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10));
+        지하철_노선_생성(LineRequest.of("분당선", "bg-yellow-600", 신논현역, 정자역, 20));
+
         // when
+        ExtractableResponse<Response> response = 지하철_노선_목록_조회();
+
         // then
+        List<String> lineNames = response.jsonPath().getList("name", String.class);
+
+        assertAll(
+                () -> assertThat(lineNames).hasSize(2),
+                () -> assertThat(lineNames).containsAnyOf("신분당선", "분당선")
+        );
     }
 
     /**
