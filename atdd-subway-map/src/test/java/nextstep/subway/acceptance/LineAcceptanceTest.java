@@ -4,6 +4,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import nextstep.subway.applicaion.dto.LineRequest;
 import nextstep.subway.applicaion.dto.StationRequest;
+import nextstep.subway.applicaion.dto.StationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_목록_조회;
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_생성;
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_조회;
 import static nextstep.subway.acceptance.StationSteps.지하철역_생성;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -82,8 +84,21 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void getSpecificLine() {
         // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
+
         // when
+        ExtractableResponse<Response> response = 지하철_노선_조회(신분당선);
+
         // then
+        String lineName = response.jsonPath().getString("name");
+        List<StationResponse> stations = response.jsonPath().getList("stations", StationResponse.class);
+
+        assertAll(
+                () -> assertThat(lineName).isEqualTo("신분당선"),
+                () -> assertThat(stations).hasSize(2),
+                () -> assertThat(stations).extracting("name").containsAnyOf("강남역", "신논현역")
+        );
     }
 
     /**

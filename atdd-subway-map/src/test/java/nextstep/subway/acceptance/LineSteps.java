@@ -26,4 +26,13 @@ public class LineSteps {
                 .statusCode(HttpStatus.OK.value())
                 .extract();
     }
+
+    public static ExtractableResponse<Response> 지하철_노선_조회(Long lineId) {
+        return RestAssured.given().log().all()
+                .pathParam("id", lineId)
+                .when().get("/lines/{id}")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+    }
 }
