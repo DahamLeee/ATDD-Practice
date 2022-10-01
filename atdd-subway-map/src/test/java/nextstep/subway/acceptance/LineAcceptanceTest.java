@@ -2,6 +2,7 @@ package nextstep.subway.acceptance;
 
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import nextstep.subway.applicaion.dto.LineChangeRequest;
 import nextstep.subway.applicaion.dto.LineRequest;
 import nextstep.subway.applicaion.dto.StationRequest;
 import nextstep.subway.applicaion.dto.StationResponse;
@@ -12,7 +13,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_목록_조회;
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_삭제;
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_생성;
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_수정;
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_조회;
 import static nextstep.subway.acceptance.StationSteps.지하철역_생성;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,8 +113,20 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void updateLine() {
         // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
+
         // when
+        지하철_노선_수정(신분당선, LineChangeRequest.of("다른분당선", "bg-red-600"));
+
         // then
+        String lineName = 지하철_노선_조회(신분당선).jsonPath().getString("name");
+        String lineColor = 지하철_노선_조회(신분당선).jsonPath().getString("color");
+
+        assertAll(
+                () -> assertThat(lineName).isEqualTo("다른분당선"),
+                () -> assertThat(lineColor).isEqualTo("bg-red-600")
+        );
     }
 
     /**
@@ -123,7 +138,16 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteLine() {
         // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
+
         // when
+        지하철_노선_삭제(신분당선);
+
         // then
+        ExtractableResponse<Response> response = 지하철_노선_목록_조회();
+        List<String> lineNames = response.jsonPath().getList("name", String.class);
+
+        assertThat(lineNames).isEmpty();
     }
 }

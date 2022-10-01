@@ -42,6 +42,11 @@ public class Line {
         return new Line(name, color, upStation, downStation, distance);
     }
 
+    public void change(String name, String color) {
+        this.name = name;
+        this.color = color;
+    }
+
     public Long getId() {
         return id;
     }
