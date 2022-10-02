@@ -1,12 +1,12 @@
 package nextstep.subway.domain;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 public class Line {
@@ -18,33 +18,31 @@ public class Line {
     private String name;
     private String color;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "up_station_id")
-    private Station upStation;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "down_station_id")
-    private Station downStation;
-
-    private int distance;
+    @Embedded
+    private Sections sections = new Sections();
 
     protected Line() { }
 
-    private Line(String name, String color, Station upStation, Station downStation, int distance) {
+    private Line(String name, String color) {
         this.name = name;
         this.color = color;
-        this.upStation = upStation;
-        this.downStation = downStation;
-        this.distance = distance;
     }
 
-    public static Line of(String name, String color, Station upStation, Station downStation, int distance) {
-        return new Line(name, color, upStation, downStation, distance);
+    public static Line of(String name, String color) {
+        return new Line(name, color);
+    }
+
+    public void addSection(SectionBuilder sectionBuilder) {
+        sections.addSection(Section.of(this, sectionBuilder.upStation, sectionBuilder.downStation, sectionBuilder.distance));
     }
 
     public void change(String name, String color) {
         this.name = name;
         this.color = color;
+    }
+
+    public List<Station> allStations() {
+        return Collections.unmodifiableList(sections.allStations());
     }
 
     public Long getId() {
@@ -59,15 +57,36 @@ public class Line {
         return color;
     }
 
-    public Station getUpStation() {
-        return upStation;
-    }
+    public static class SectionBuilder {
+        private Station upStation;
+        private Station downStation;
+        private int distance;
 
-    public Station getDownStation() {
-        return downStation;
-    }
+        public SectionBuilder() { }
 
-    public int getDistance() {
-        return distance;
+        public SectionBuilder(SectionBuilder sectionBuilder) {
+            this.upStation = sectionBuilder.upStation;
+            this.downStation = sectionBuilder.downStation;
+            this.distance = sectionBuilder.distance;
+        }
+
+        public SectionBuilder upStation(Station upStation) {
+            this.upStation = upStation;
+            return this;
+        }
+
+        public SectionBuilder downStation(Station downStation) {
+            this.downStation = downStation;
+            return this;
+        }
+
+        public SectionBuilder distance(int distance) {
+            this.distance = distance;
+            return this;
+        }
+
+        public SectionBuilder build() {
+            return new SectionBuilder(this);
+        }
     }
 }

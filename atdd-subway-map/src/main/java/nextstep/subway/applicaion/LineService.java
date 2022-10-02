@@ -31,7 +31,14 @@ public class LineService {
         Station downStation = stationService.findStationById(request.getDownStationId());
 
         Line savedLine = lineRepository.save(
-                Line.of(request.getName(), request.getColor(), upStation, downStation, request.getDistance())
+                Line.of(request.getName(), request.getColor())
+        );
+
+        savedLine.addSection(new Line.SectionBuilder()
+                .upStation(upStation)
+                .downStation(downStation)
+                .distance(request.getDistance())
+                .build()
         );
 
         return LineResponse.from(savedLine);

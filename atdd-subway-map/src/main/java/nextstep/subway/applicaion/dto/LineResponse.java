@@ -2,9 +2,9 @@ package nextstep.subway.applicaion.dto;
 
 import nextstep.subway.domain.Line;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LineResponse {
 
@@ -12,7 +12,7 @@ public class LineResponse {
     private String name;
     private String color;
 
-    private final List<StationResponse> stations = new ArrayList<>();
+    private List<StationResponse> stations;
 
     private LineResponse() { }
 
@@ -20,8 +20,10 @@ public class LineResponse {
         this.id = line.getId();
         this.name = line.getName();
         this.color = line.getColor();
-        stations.add(StationResponse.createStationResponse(line.getUpStation()));
-        stations.add(StationResponse.createStationResponse(line.getDownStation()));
+        this.stations = line.allStations()
+                .stream()
+                .map(StationResponse::createStationResponse)
+                .collect(Collectors.toList());
     }
 
     public static LineResponse from(Line line) {
