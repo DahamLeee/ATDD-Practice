@@ -1,10 +1,37 @@
 package nextstep.subway.acceptance;
 
+import nextstep.subway.applicaion.dto.LineRequest;
+import nextstep.subway.applicaion.dto.SectionRequest;
+import nextstep.subway.applicaion.dto.StationRequest;
+import nextstep.subway.applicaion.dto.StationResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static nextstep.subway.acceptance.LineSteps.지하철_구간_추가;
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_생성;
+import static nextstep.subway.acceptance.LineSteps.지하철_노선_조회;
+import static nextstep.subway.acceptance.StationSteps.지하철역_생성;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 @DisplayName("지하철 구간 관련 기능")
 public class SectionAcceptanceTest extends AcceptanceTest {
+
+    private Long 강남역;
+    private Long 신논현역;
+    private Long 정자역;
+    private Long 판교역;
+
+    @BeforeEach
+    void initData() {
+        강남역 = 지하철역_생성(StationRequest.from("강남역")).jsonPath().getLong("id");
+        신논현역 = 지하철역_생성(StationRequest.from("신논현역")).jsonPath().getLong("id");
+        정자역 = 지하철역_생성(StationRequest.from("정자역")).jsonPath().getLong("id");
+        판교역 = 지하철역_생성(StationRequest.from("판교역")).jsonPath().getLong("id");
+    }
 
     /**
      * Given 지하철 노선을 생성하고
@@ -14,7 +41,24 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 등록")
     @Test
     void addSection() {
+        // when
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath()
+                .getLong("id");
 
+        // then
+        지하철_구간_추가(신분당선, SectionRequest.of(신논현역, 정자역, 15));
+
+        // when
+        List<StationResponse> stations =
+                지하철_노선_조회(신분당선).jsonPath().getList("stations", StationResponse.class);
+
+        assertAll(
+                () -> assertThat(stations).hasSize(3),
+                () -> assertThat(stations)
+                        .extracting("name")
+                        .containsAnyOf("강남역", "신논현역", "정자역")
+        );
     }
 
     /**

@@ -5,6 +5,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import nextstep.subway.applicaion.dto.LineChangeRequest;
 import nextstep.subway.applicaion.dto.LineRequest;
+import nextstep.subway.applicaion.dto.SectionRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -54,6 +55,17 @@ public class LineSteps {
                 .when().delete("/lines/{id}")
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value())
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> 지하철_구간_추가(Long id, SectionRequest sectionRequest) {
+        return RestAssured.given().log().all()
+                .body(sectionRequest)
+                .pathParam("id", id)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/lines/{id}/sections")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
                 .extract();
     }
 }
