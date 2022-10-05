@@ -1,5 +1,7 @@
 package nextstep.subway.acceptance;
 
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import nextstep.subway.applicaion.dto.LineRequest;
 import nextstep.subway.applicaion.dto.SectionRequest;
 import nextstep.subway.applicaion.dto.StationRequest;
@@ -7,6 +9,7 @@ import nextstep.subway.applicaion.dto.StationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -41,15 +44,15 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 등록")
     @Test
     void addSection() {
-        // when
+        // given
         Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
                 .jsonPath()
                 .getLong("id");
 
-        // then
+        // when
         지하철_구간_추가(신분당선, SectionRequest.of(신논현역, 정자역, 15));
 
-        // when
+        // then
         List<StationResponse> stations =
                 지하철_노선_조회(신분당선).jsonPath().getList("stations", StationResponse.class);
 
@@ -69,7 +72,21 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 등록 예외(하행역과 상행역 불일치)")
     @Test
     void addSectionUnmatchedException() {
+        // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath()
+                .getLong("id");
 
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_추가(신분당선, SectionRequest.of(정자역, 판교역, 15));
+
+        // then
+        String exceptionMessage = response.jsonPath().getString("message");
+
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+                () -> assertThat(exceptionMessage).isEqualTo("기존 노선의 종점역과 신규 구간의 상행역이 일치하지 않습니다.")
+        );
     }
 
     /**
