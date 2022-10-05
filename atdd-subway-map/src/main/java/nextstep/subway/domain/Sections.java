@@ -1,6 +1,7 @@
 package nextstep.subway.domain;
 
 import nextstep.subway.exception.AddSectionException;
+import nextstep.subway.exception.DeleteSectionException;
 import nextstep.subway.exception.SectionNotFoundException;
 
 import javax.persistence.CascadeType;
@@ -29,6 +30,25 @@ public class Sections {
         matchLastStationAndNewUpStation(section.getUpStation());
 
         this.sections.add(section);
+    }
+
+    public void deleteSection(Station station) {
+        validateDeleteSection(station);
+        sections.remove(lastSection());
+    }
+
+    private void validateDeleteSection(Station station) {
+        if (sections.size() == 1) {
+            throw new DeleteSectionException("구간이 1개인 노선은 삭제를 진행할 수 없습니다.");
+        }
+
+        if (!allStations().contains(station)) {
+            throw new DeleteSectionException("삭제하려는 역이 노선에 등록되어 있지 않은 역입니다.");
+        }
+
+        if (!lastSection().isSameDownStation(station)) {
+            throw new DeleteSectionException("삭제하려는 역이 기존 노선의 하행 종점역이 아닙니다.");
+        }
     }
 
     private void checkDuplicateSection(Section section) {

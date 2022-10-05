@@ -87,4 +87,12 @@ public class LineService {
                         .distance(request.getDistance())
         );
     }
+
+    @Transactional
+    public void deleteSection(Long lineId, Long stationId) {
+        Line findLine = findLineById(lineId);
+        Station findStation = stationService.findStationById(stationId);
+
+        findLine.deleteSection(findStation);
+    }
 }

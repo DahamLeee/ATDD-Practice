@@ -12,4 +12,9 @@ public class LineControllerAdvice {
     public ResponseEntity<ErrorResult> addSectionException(AddSectionException e) {
         return ResponseEntity.ok(ErrorResult.from(e.getMessage()));
     }
+
+    @ExceptionHandler(DeleteSectionException.class)
+    public ResponseEntity<ErrorResult> deleteSectionException(DeleteSectionException e) {
+        return ResponseEntity.ok(ErrorResult.from(e.getMessage()));
+    }
 }

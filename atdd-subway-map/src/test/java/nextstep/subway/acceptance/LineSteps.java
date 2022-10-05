@@ -68,4 +68,14 @@ public class LineSteps {
                 .statusCode(HttpStatus.OK.value())
                 .extract();
     }
+
+    public static ExtractableResponse<Response> 지하철_구간_제거(Long lineId, Long stationId) {
+        return RestAssured.given().log().all()
+                .pathParam("id", lineId)
+                .param("stationId", stationId)
+                .when().delete("/lines/{id}/sections")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+    }
 }

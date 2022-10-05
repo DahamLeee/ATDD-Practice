@@ -36,6 +36,10 @@ public class Line {
         sections.addSection(Section.of(this, sectionBuilder.upStation, sectionBuilder.downStation, sectionBuilder.distance));
     }
 
+    public void deleteSection(Station station) {
+        sections.deleteSection(station);
+    }
+
     public void change(String name, String color) {
         this.name = name;
         this.color = color;

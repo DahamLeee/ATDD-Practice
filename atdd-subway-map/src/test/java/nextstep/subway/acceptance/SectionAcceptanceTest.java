@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static nextstep.subway.acceptance.LineSteps.지하철_구간_제거;
 import static nextstep.subway.acceptance.LineSteps.지하철_구간_추가;
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_생성;
 import static nextstep.subway.acceptance.LineSteps.지하철_노선_조회;
@@ -120,7 +121,27 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 삭제")
     @Test
     void deleteSection() {
+        // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
 
+        // given
+        지하철_구간_추가(신분당선, SectionRequest.of(신논현역, 정자역, 20));
+
+        // when
+        지하철_구간_제거(신분당선, 정자역);
+
+        // then
+        List<StationResponse> stations = 지하철_노선_조회(신분당선)
+                .jsonPath()
+                .getList("stations", StationResponse.class);
+
+        assertAll(
+                () -> assertThat(stations).hasSize(2),
+                () -> assertThat(stations)
+                        .extracting("name")
+                        .containsAnyOf("강남역", "신논현역")
+        );
     }
 
     /**
@@ -132,7 +153,19 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 삭제 예외(존재하지 않는 역 삭제)")
     @Test
     void deleteSectionWhenNotExistsStation() {
+        // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
 
+        // given
+        지하철_구간_추가(신분당선, SectionRequest.of(신논현역, 정자역, 20));
+
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_제거(신분당선, 판교역);
+
+        // then
+        String exceptionMessage = response.jsonPath().getString("message");
+        assertThat(exceptionMessage).isEqualTo("삭제하려는 역이 노선에 등록되어 있지 않은 역입니다.");
     }
 
     /**
@@ -143,6 +176,15 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 삭제 오류(구간이 1개인 노선)")
     @Test
     void deleteSectionOnlyOneSectionException() {
+        // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
 
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_제거(신분당선, 판교역);
+
+        // then
+        String exceptionMessage = response.jsonPath().getString("message");
+        assertThat(exceptionMessage).isEqualTo("구간이 1개인 노선은 삭제를 진행할 수 없습니다.");
     }
 }
