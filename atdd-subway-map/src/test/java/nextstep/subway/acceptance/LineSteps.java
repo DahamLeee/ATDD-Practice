@@ -65,6 +65,7 @@ public class LineSteps {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/lines/{id}/sections")
                 .then().log().all()
+                .statusCode(HttpStatus.OK.value())
                 .extract();
     }
 }

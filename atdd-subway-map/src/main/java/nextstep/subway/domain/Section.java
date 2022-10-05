@@ -50,7 +50,11 @@ public class Section {
         return this.upStation;
     }
 
-    public boolean isSameUpStation(Station currentUpStation) {
-        return this.upStation == currentUpStation;
+    public boolean isSameUpStation(Station station) {
+        return this.upStation == station;
+    }
+
+    public boolean isSameDownStation(Station station) {
+        return this.downStation == station;
     }
 }

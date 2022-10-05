@@ -9,7 +9,6 @@ import nextstep.subway.applicaion.dto.StationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -82,11 +81,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
         // then
         String exceptionMessage = response.jsonPath().getString("message");
-
-        assertAll(
-                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-                () -> assertThat(exceptionMessage).isEqualTo("기존 노선의 종점역과 신규 구간의 상행역이 일치하지 않습니다.")
-        );
+        assertThat(exceptionMessage).isEqualTo("기존 노선의 종점역과 신규 구간의 상행역이 일치하지 않습니다.");
     }
 
     /**
@@ -97,7 +92,23 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 구간 등록 예외(이미 존재하는 역 등록)")
     @Test
     void addSectionAlreadyExistsStationException() {
+        // given
+        Long 신분당선 = 지하철_노선_생성(LineRequest.of("신분당선", "bg-red-600", 강남역, 신논현역, 10))
+                .jsonPath().getLong("id");
 
+        // when
+        ExtractableResponse<Response> response = 지하철_구간_추가(신분당선, SectionRequest.of(신논현역, 강남역, 20));
+
+        // then
+        String exceptionMessage = response.jsonPath().getString("message");
+        List<StationResponse> stations = 지하철_노선_조회(신분당선)
+                .jsonPath().getList("stations", StationResponse.class);
+
+        assertAll(
+                () -> assertThat(exceptionMessage).isEqualTo("새로운 구간의 하행역은 해당 노선에 등록되어 있는 역일 수 없습니다."),
+                () -> assertThat(stations).hasSize(2),
+                () -> assertThat(stations).extracting("name").containsAnyOf("강남역", "신논현역")
+        );
     }
 
     /**

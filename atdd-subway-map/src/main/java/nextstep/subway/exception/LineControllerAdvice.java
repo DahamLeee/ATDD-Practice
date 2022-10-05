@@ -10,6 +10,6 @@ public class LineControllerAdvice {
 
     @ExceptionHandler(AddSectionException.class)
     public ResponseEntity<ErrorResult> addSectionException(AddSectionException e) {
-        return ResponseEntity.badRequest().body(ErrorResult.from(e.getMessage()));
+        return ResponseEntity.ok(ErrorResult.from(e.getMessage()));
     }
 }

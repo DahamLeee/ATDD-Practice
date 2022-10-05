@@ -25,9 +25,19 @@ public class Sections {
             return;
         }
 
+        checkDuplicateSection(section);
         matchLastStationAndNewUpStation(section.getUpStation());
 
         this.sections.add(section);
+    }
+
+    private void checkDuplicateSection(Section section) {
+        sections.stream()
+                .filter(it -> it.isSameUpStation(section.getDownStation()) || it.isSameDownStation(section.getDownStation()))
+                .findFirst()
+                .ifPresent(it -> {
+                    throw new AddSectionException("새로운 구간의 하행역은 해당 노선에 등록되어 있는 역일 수 없습니다.");
+                });
     }
 
     private void matchLastStationAndNewUpStation(Station upStation) {
