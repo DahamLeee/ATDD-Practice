@@ -27,6 +27,10 @@ public class Line {
         sections.addSection(section);
     }
 
+    public void removeSection() {
+        sections.removeSection();
+    }
+
     public Long getId() {
         return id;
     }

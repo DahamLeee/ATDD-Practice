@@ -28,6 +28,11 @@ public class Sections {
 
         checkDuplicateSection(section);
         matchLastStationAndNewUpStation(section.getUpStation());
+        this.sections.add(section);
+    }
+
+    public void removeSection() {
+        sections.remove(sections.size() - 1);
     }
 
     private void checkDuplicateSection(Section section) {
