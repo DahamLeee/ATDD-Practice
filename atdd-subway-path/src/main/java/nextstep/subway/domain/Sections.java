@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Embeddable
 public class Sections {
@@ -33,6 +34,20 @@ public class Sections {
 
     public void removeSection() {
         sections.remove(sections.size() - 1);
+    }
+
+    public List<Station> allStations() {
+        if (sections.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Station> stations = sections.stream()
+                .map(Section::getUpStation)
+                .collect(Collectors.toList());
+
+        stations.add(lastSection().getDownStation());
+
+        return stations;
     }
 
     private void checkDuplicateSection(Section section) {

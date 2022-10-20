@@ -2,11 +2,15 @@ package nextstep.subway.unit;
 
 import nextstep.subway.domain.Line;
 import nextstep.subway.domain.Section;
+import nextstep.subway.domain.Station;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static nextstep.subway.fixture.ConstStation.강남역;
 import static nextstep.subway.fixture.ConstStation.신논현역;
 import static nextstep.subway.fixture.ConstStation.정자역;
+import static nextstep.subway.fixture.ConstStation.판교역;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -31,6 +35,17 @@ class LineTest {
 
     @Test
     void getStations() {
+        Line line = new Line("신분당선", "bg-red-600");
+        line.addSection(new Section(line, 강남역, 신논현역, 10));
+        line.addSection(new Section(line, 신논현역, 정자역, 20));
+        line.addSection(new Section(line, 정자역, 판교역, 30));
+
+        List<Station> stations = line.getStations();
+
+        assertAll(
+                () -> assertThat(stations).hasSize(4),
+                () -> assertThat(stations).containsAnyOf(강남역, 신논현역, 정자역, 판교역)
+        );
     }
 
     @Test

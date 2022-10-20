@@ -2,6 +2,7 @@ package nextstep.subway.domain;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -29,6 +30,10 @@ public class Line {
 
     public void removeSection() {
         sections.removeSection();
+    }
+
+    public List<Station> getStations() {
+        return Collections.unmodifiableList(sections.allStations());
     }
 
     public Long getId() {
