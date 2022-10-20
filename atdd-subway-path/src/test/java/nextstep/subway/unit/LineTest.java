@@ -50,5 +50,20 @@ class LineTest {
 
     @Test
     void removeSection() {
+        Line line = new Line("신분당선", "bg-red-600");
+
+        line.addSection(new Section(line, 강남역, 신논현역, 10));
+        line.addSection(new Section(line, 신논현역, 정자역, 20));
+
+        line.removeSection();
+
+        List<Section> sections = line.getSections();
+        assertAll(
+                () -> assertThat(sections).hasSize(1),
+                () -> assertThat(sections).extracting("upStation")
+                        .containsAnyOf(강남역),
+                () -> assertThat(sections).extracting("downStation")
+                        .containsAnyOf(신논현역)
+        );
     }
 }
